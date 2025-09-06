@@ -6,12 +6,13 @@ on:
       - main
       - dev
 
+# Non-secret env is fine here
 env:
   MONGODB_DB_NAME: mydatabase
 
 jobs:
   test:
-    #  Use GitHub Actions secrets for sensitive values
+    # ✅ use GitHub Secrets for sensitive values
     env:
       MONGODB_CLUSTER_ADDRESS: ${{ secrets.MONGODB_CLUSTER_ADDRESS }}
       MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
@@ -32,6 +33,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare MongoDB URI
+        run: |
+          echo "MONGODB_URI=mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_CLUSTER_ADDRESS}/${MONGODB_DB_NAME}?retryWrites=true&w=majority" >> $GITHUB_ENV
+
       - name: Run server
         run: npm start & npx wait-on http://127.0.0.1:$PORT
 
@@ -39,7 +44,7 @@ jobs:
         run: npm test
 
       - name: Output information (test job)
-        run: echo "DB Name (non-secret): $MONGODB_DB_NAME"
+        run: echo "DB Name: $MONGODB_DB_NAME"
 
   deploy:
     needs: test
@@ -48,6 +53,6 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v3
 
-      # (Add your real deploy steps here)
+      # Add real deploy steps here (e.g., build, docker push, SSH, etc.)
       - name: Output information (deploy job)
         run: echo "Deploying with DB: $MONGODB_DB_NAME"
