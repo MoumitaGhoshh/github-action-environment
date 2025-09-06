@@ -6,13 +6,11 @@ on:
       - main
       - dev
 
-# Non-secret env is fine here
 env:
   MONGODB_DB_NAME: mydatabase
 
 jobs:
   test:
-    # ✅ use GitHub Secrets for sensitive values
     env:
       MONGODB_CLUSTER_ADDRESS: ${{ secrets.MONGODB_CLUSTER_ADDRESS }}
       MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
@@ -53,6 +51,5 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v3
 
-      # Add real deploy steps here (e.g., build, docker push, SSH, etc.)
       - name: Output information (deploy job)
         run: echo "Deploying with DB: $MONGODB_DB_NAME"
